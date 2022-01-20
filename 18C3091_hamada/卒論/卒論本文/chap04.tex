@@ -1,0 +1,55 @@
+
+\chapter{実験}
+\section{実験概要}
+本実験に用いる原テンソル$X∈\mathbb{R}^{n_1\times n_2\times 3}$　は
+サイズ256×256×3の標準カラー画像12枚を用いた．このようなカラー画像では，第3次元（RGBカラーチャンネル）の間に強い相関があることが知られている．また，
+ノイズテンソルとしては，各成分が独立同一の分散$\sigma=0.2, 0.5$の正規分布に従うものを用い，これを原テンソルに付加したものを観測テンソルとする．
+比較手法としては，直交変換として常にDFT，DCT，PCAを用いる手法を選び，その性能を，SURE用いて最良の直交変換を選択する提案手法と比較する．復元性能の評価は原テンソルとノイズ除去後のテンソルとの間のPSNR（単位は[dB]）によって行う．
+
+\section{実験結果}
+実験により得られた結果を表4.1,および表4.2に示す．これらの表から，SUREを用いて決定された直交変換は画像12枚のうち，11枚において最良の直交変換が選ばれることが明らかとなった．また，提案手法が最良の直交変換を選べていない場合においても，2番目にPSNRが大きい直交変換との差は0.05以下とごく小さいことが明らかとなった．
+以上より，SUREを用いた直交変換の選択手法の有効性が明らかとなった．
+
+\begin{table}[h]
+\caption{標準画像に対するテンソルデノイズの性能比較($\sigma=0.2$，単位はPSNR，赤字は一番目に高い値，青字は二番目に高い値)}
+\label{tab:settings}
+\centering
+\begin{tabular}{c||c|c|c||c}\hline
+- & DFT & DCT & PCA & SURE\\\hline
+Aerial & 21.20 & \textcolor{blue}{21.31} & \textcolor{red}{21.33} & \textcolor{red}{21.33}\\\hline
+Airplane & 21.81 & \textcolor{blue}{21.86} & \textcolor{red}{22.14}& \textcolor{red}{22.14}\\\hline
+Balloon & 24.11 & \textcolor{red}{24.19} & \textcolor{blue}{24.15} & \textcolor{blue}{24.15} \\\hline
+Earth & 22.51 & \textcolor{blue}{22.59} & \textcolor{red}{22.87} & \textcolor{red}{22.87}  \\\hline
+Girl & 23.09 & \textcolor{blue}{23.16} & \textcolor{red}{23.19} & \textcolor{red}{23.19}  \\\hline
+Lenna & 21.69 & \textcolor{blue}{21.73} & \textcolor{red}{21.96} & \textcolor{red}{21.96} \\\hline
+Mandrill &20.25 & \textcolor{red}{20.39} & \textcolor{blue}{20.34} & \textcolor{red}{20.39}  \\\hline
+Parrots & 21.83 & \textcolor{blue}{21.90} & \textcolor{red}{21.92}  & \textcolor{red}{21.92}  \\\hline
+Pepper & 20.70 & \textcolor{blue}{20.72} & \textcolor{red}{20.97} & \textcolor{red}{20.97}  \\\hline
+Sailboat & 21.50 & \textcolor{blue}{21.57} & \textcolor{red}{21.97} & \textcolor{red}{21.97}  \\\hline
+couple & 23.94 & \textcolor{blue}{24.05} & \textcolor{red}{24.11} & \textcolor{red}{24.11}  \\\hline
+milkdrop &23.14 & \textcolor{blue}{23.19} & \textcolor{red}{23.48} & \textcolor{red}{23.48} \\\hline
+
+
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\caption{標準画像に対するテンソルデノイズの性能比較($\sigma=0.5$，単位はPSNR，赤字は一番目に高い値，青字は二番目に高い値)}
+\label{tab:settings}
+\centering
+\begin{tabular}{c||c|c|c||c}\hline
+- & DFT & DCT & PCA & SURE\\\hline
+Aerial &\textcolor{blue}{18.40}&	\textcolor{red}{18.46}&	18.21&	\textcolor{red}{18.46}\\\hline
+Airplane &\textcolor{blue}{18.07}&\textcolor{red}{18.09}&	17.90&	\textcolor{blue}{18.07}\\\hline
+Balloon &\textcolor{blue}{20.64}	&\textcolor{red}{20.70}&	20.28	&\textcolor{red}{20.70}\\\hline
+Earth &18.65&	\textcolor{blue}{18.86}&	\textcolor{red}{18.94}&	\textcolor{red}{18.94}\\\hline
+Gial&19.12&	\textcolor{blue}{19.22}&	\textcolor{red}{19.22}&	\textcolor{red}{19.22}\\\hline
+Lenna &17.50&	\textcolor{blue}{17.55}&	\textcolor{red}{17.67}&	\textcolor{red}{17.67}\\\hline
+Mandrill& 16.91&\textcolor{red}{17.06}&	\textcolor{blue}{16.97}	&\textcolor{red}{17.06}\\\hline
+Parrots &17.52&	\textcolor{blue}{17.61}&	\textcolor{red}{17.67}	&\textcolor{red}{17.67}\\\hline
+Pepper &16.24&	\textcolor{blue}{16.32}&	\textcolor{red}{16.66}&\textcolor{red}{16.66}\\\hline
+Sailboat& 17.43	&\textcolor{blue}{17.53}	&\textcolor{red}{17.68}&	\textcolor{red}{17.68}\\\hline
+couple &20.60&	\textcolor{blue}{20.67}&	\textcolor{red}{20.70}&	\textcolor{red}{20.70}\\\hline
+milkdrop &17.32&	\textcolor{blue}{17.34}&	\textcolor{red}{17.48}	&\textcolor{red}{17.48}\\\hline
+\end{tabular}
+\end{table}

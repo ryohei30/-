@@ -1,0 +1,130 @@
+\chapter{関連研究}
+\section{t-SVD}
+テンソル$\mathcal{A}\in \mathbb{R}^{n_1\times n_2\times n_3}$のt-SVD\cite{Kilmer}は，以下のように定義される．
+\begin{equation}
+    \label{tsvd}
+    \mathcal{A} = \mathcal{U} * \mathcal{S} * \mathcal{V}^*
+\end{equation}
+
+ここで $*$はt-積であり,
+$\mathcal{A}*\mathcal{B} = \mathrm{fold}(\mathrm{bcirc}(A)・\mathrm{unfold}(B)$を表している．また，
+$\mathcal{V}^*$は$\mathcal{V}$の転置テンソルであり，$\mathcal{V}\in \mathbb{R}^{n_1\times n_2\times n_3}
+$
+ならば，$\mathcal{V}^*\in \mathbb{R}^{n_2\times n_1\times n_3}$である．
+ここで，
+\begin{equation}
+    \label{eq:yx}
+    \mathrm{bcirc}(\mathcal{A})=
+    \begin{bmatrix}
+A^{(1)} &  A^{(n_3)} & \cdots & A^{(2)}\\
+A^{(2)} &  A^{(1)}   &        & A^{(3)} \\
+\vdots  &            & \ddots & \vdots \\
+A^{(n_3)}  &  A^{(n_3-1)}     & \cdots & A^{(1)}
+\end{bmatrix}
+\end{equation}
+\\
+
+\begin{equation}
+    \label{unfold}
+    \mathrm{unfold}(\mathcal{A}) = 
+    \begin{bmatrix}
+A^{(1)} \\
+A^{(2)} \\
+\vdots  \\
+A^{(n_3)}
+\end{bmatrix},\mathrm{fold}(\mathrm{unfold}(\mathcal{A})=\mathcal{A}
+\end{equation}である．
+また，$A^{(i)}$はテンソル$\mathcal{A}$のフロンタルスライス（行列）をさしており，
+$A^{(i)} = \mathcal{A}(:,:,i)$
+と定義される．すなわち，式(\ref{unfold})で定義されるunfoldは，テンソルをフロンタルスライスに分解し，それらを縦に連結した行列を得る処理である．
+いま，$\bar{\mathcal{A}}$をテンソル$\mathcal{A}$の第3次元方向に対してDFTを施して得られるテンソル\footnote{Matlabの記法を使えば$\bar{\mathcal{A}}=\mathrm{fft}(\mathcal{A}} [],3)$とかける.}であるとすると，$\mathcal{C}=\mathcal{A}*\mathcal{B}$であれば，任意の$i$について
+\begin{equation}
+\label{dft}
+ \bar{C}^{(i)} =  \bar{A}^{(i)}   \bar{B}^{(i)} 
+\end{equation}であることは明らかである．これにより，テンソル$\mathcal{A}$のt-SVDは，分解対象のテンソル$\mathcal{A}$の第3次元（フロンタル方向）に対してDFTを行ったのち，各フロンタルスライスを行列とみなして（行列の）特異値分解を行うことで実現できる．すなわち
+\begin{equation}
+\mathcal{A}=\mathcal{U}*\mathcal{S}*\mathcal{V}^*
+\end{equation}
+であれば，任意のiについて
+
+\begin{equation}
+\label{frontalslice_use_t-svd}
+\bar{A}^{(i)} = \bar{U}^{(i)} \bar{S}^{(i)} \bar{V}^*^{(i)}
+\end{equation}が成立する．
+
+
+
+\section{PCAを用いたt-SVD}
+上記のt-SVDにおいて，テンソル第３次元方向に対して適用していたDFTを，DCTやPCAで置き換える手法が提案されている．本節では，
+PCAを使った手法について解説する．いま，対象の３階テンソルを$\mathcal{A}\in \mathbb{R}^{n_1\times n_2\times n_3}$とする.このテンソルの（第三次元方向に対する）PCAは
+
+\begin{equation}
+    \label{eq:yx}
+    \bar{\mathcal{A}}(i,j,:)=V\mathcal{A}(i,j,:).
+\end{equation}によって実現できる．ここで，$\bar{\mathcal{A}}$はPCA後のテンソルであり，$\mathcal{A}(i,j,:)$はテンソル$\mathcal{A}$のフロンタルファイバーを列ベクトルとみなしたものであるとする．また，$n_3\times n_3$の行列$V$は以下のように定義される共分散行列 $C \in \mathbb{R}^{n_3 \times n_3}$の単位固有ベクトルからなる変換行列をさしている．
+
+\begin{equation}
+    \label{eq:yx}
+    C_{i,j} = \frac{1}{n_1n_2} \mathrm{Tr}(A^{(i)}-\bm{\mu})^T(A^{(j)}-\bm{\mu}))
+\end{equation}ここで，ベクトル$\bm{\mu}_k$は$k$番目のフロンタルスライスの平均値であり，
+
+\begin{equation}
+    \label{eq:yx}
+    \mu_k = \frac{1}{n_1n_2} \sum_{i=1}^{n_1}\sum_{j=1}^{n_2}A_{ijk}
+\end{equation}と定義される．
+
+
+
+\section{T-SVDによるテンソルデノイズ}
+いま,未知の真のテンソル$\mathcal{X} \in \mathbb{R}^{n_1 \times n_2 \times n_3}$に対して平均0，分散$\sigma^2$ の正規分布に従うノイズテンソル$\mathcal{W}$が付加された観測テンソル$\mathcal{Y}＝\mathcal{X}+\mathcal{W}$が得られているとする．T-SVDを用いたテンソルデノイズは観測テンソルから真のテンソル$\mathcal{X}$を推定手法の一種であり，$\mathcal{X}$の推定値$\^{\mathcal{X}}$は式(\ref{xhat})に示す最小化問題を解くことによって得られる．
+
+\begin{equation}
+    \label{xhat}
+    \hat{\mathcal{X}} = \mathcal{\arg \min_Y||Y||_*^Q}
+\end{equation}ここで， $||\cdot||_*^Q$は(直交変換としてQを用いたときの）テンソル核ノルムであり，以下のように定義される.
+
+\begin{equation}
+    \label{tnn}
+    ||\mathcal{X}||_*^Q =　 \sum_{i=1}^{n_3}||\bar{X}^{(i)}||_*　,　(i=1,...,n_3)
+\end{equation}
+
+ここで，$X^{(i)}$はの第3軸方向に対して直交変換Qを施したものの$i$番目のフロンタルスライスである．また，$||\cdot ||_*$は行列の核ノルムであり，特異値の和を表している．
+
+このとき，式(\ref{xhat})の解$\^{\mathcal{X}}$の直交変換後の各フロンタルスライスは以下の式，
+
+\begin{equation}
+    \label{eq:yx}
+    \hat{\bar{X}}^{(i)} = \mathrm{SVT}_\lambda (\bar{X}^{(i)})= \bar{U}^{(i)} T_\lambda(\bar{S}^{(i)}) (\bar{V}^{(i)})^*
+\end{equation}で得られる．ここで，しきい値処理$T_\lambda$は以下のように定義される．
+\begin{equation}
+    \label{eq:yx}
+    T_\lambda(S)(i,i) = \max (S(i,i) -\lambda,0)
+\end{equation}
+このような特異値に対するしきい値処理はSVT(singular value thresholding)とよばれる．
+
+
+
+
+\section{核ノルム最小化におけるSURE}
+SURE(Stein's unbiased risk estimator)は原画像を用いることなく，推定画像との平均二乗誤差を不偏推定することができる手法である．
+
+いま，原行列$X \in \mathbb{R}^{m \times n$にノイズ行列$W\in \mathbb{R}^{m \times n$が加算された観測行列$Y＝X＋W$から$X$を前述のSVT用いて推定するとものする．このようなSVTを用いた行列デノイズにおけるSUREはCandesらの検討によって以下のように明らかとなっている\cite{Candes}．
+\begin{equation}
+\begin{split}
+    \label{sure}
+    \mathrm{SURE}(\mathrm{SVT}_\lambda(Y)) = -mnr^2 + {\sum_{i=1}^{\mathrm{min}(m,n)}} \mathrm{min}(\lambda^2,\sigma_i^2) 
+    \\+ 2r^2 \mathrm{div}(\mathrm{SVT}_\lambda(Y))
+\end{split}
+\end{equation}ここで，$r^2$はガウシアンノイズの分散,
+$\lambda$は正のスカラー，$\{\sigma_i\}^n_{i=1}$は$Y$の特異値を表す．さらに，$\mathrm{div}(\mathrm{SVT}_\lambda(Y))$は$(\mathrm{SVT}_\lambda(Y))$の自由度と呼ばれる値であり，これは以下のように得られる．
+
+\begin{equation}
+\begin{split}
+    \label{eq:yx}
+    \mathrm{div}(\mathrm{SVT}_\lambda(Y)) = |m-n| {\sum_{i=1}^{\mathrm{min}(m,n)}}  (\sigma_i> \lambda)_+ 
+    \\ +  2  \sum_{i≠j,i,j=1}^{\mathrm{min}(m,n)} \frac{\sigma_i(\sigma_i-\lambda)_+}{\sigma_i^2-\sigma_j^2}
+    \\
+\end{split}
+\end{equation}
+
+本研究では，この行列デノイズのSUREを利用して，t-SVDを用いたテンソルデノイズのSUREを実現する.

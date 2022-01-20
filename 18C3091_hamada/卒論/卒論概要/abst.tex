@@ -1,0 +1,186 @@
+\documentclass[10pt,a4paper,twocolumn]{ujarticle}
+%upLaTeXを使用することを前提としています．
+\setlength{\topmargin}{20mm}
+\addtolength{\topmargin}{-1in}
+\setlength{\oddsidemargin}{18mm}
+\addtolength{\oddsidemargin}{-1in}
+\setlength{\evensidemargin}{17mm}
+\addtolength{\evensidemargin}{-1in}
+\setlength{\textwidth}{174mm}
+\setlength{\textheight}{254mm}
+\setlength{\headsep}{0mm}
+\setlength{\headheight}{0mm}
+\setlength{\topskip}{0mm}
+
+
+
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{url}
+\usepackage{color}
+
+\def\x{{\mathbf x}}
+
+
+\makeatletter
+\def\section{\@startsection {section}{1}{\z@}{2.0ex plus -1ex minus -.1ex}{0.5ex plus .1ex}{\normalsize\bf}}
+\makeatother
+\makeatletter
+\def\subsection{\@startsection {subsection}{1}{\z@}{-3.5ex plus -1ex minus -.2ex}{2.3ex plus .2ex}{\normalsize\bf}}
+\makeatother
+
+
+\setlength{\columnsep}{2zw}
+\renewcommand{\baselinestretch}{1}
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\pagestyle{empty}
+\usepackage{graphicx}
+\begin{document}
+\bibliographystyle{junsrt}
+
+\twocolumn[%
+\begin{center}
+{\LARGE \textbf{T-SVDによるテンソルノイズ除去における直交変換のSUREによる最適化}}\\
+\flushright{\large 18C3091~濱田~崚平}\\
+\flushright{\large 指導教員~~宮田~高道~教授}\\
+\vskip\Cvs
+\end{center}
+]
+
+\section{はじめに}
+
+T-SVDを用いたテンソル復元は，テンソルに離散フーリエ変換を行なったのち，行列に分解してそれぞれの行列を低ランク行列で近似することでテンソルを復元する手法である．さらに，T-SVDで用いられている離散フーリエ変換を，その他の直交変換（離散コサイン変換や主成分分析の変換行列など）で置き換えることで，より高精度なテンソル復元を行う手法も提案されており，文献\cite{kohama}では,復元対象のテンソルによって最適な直交変換が異なることも明らかとなっている．
+
+本研究では，テンソル復元の一種であるテンソルノイズ除去を対象として，候補の中から最良の直交変換を選択することにより，観測テンソルに適したノイズ除去を実現することを目的とする．提案手法では，ノイズ除去後の最小二乗誤差を，復元対象の原テンソルを参照することなく推定できるSUREを用いることで，この目的を達成する．
+
+
+\section{関連研究}
+\subsection{T-SVD}
+テンソル$\mathcal{A}\in \mathbb{R}^{n_1\times n_2\times n_3}$のフロンタルスライス（行列）を
+$A^{(i)} = \mathcal{A}(:,:,i)$
+とし，$\bar{\mathcal{A}}$をテンソル$\mathcal{A}$の第３次元方向に対してDFTを施して得られるテンソル\footnote{Matlabの記法をつかえば$\bar{\mathcal{A}}=\mathrm{fft}(\mathcal{A} [],3)$とかける．}であるとする．このとき，テンソル$\mathcal{A}$のt-SVDの具体的な計算は，任意の$i$について
+
+\begin{equation}
+\label{frontalslice_use_t-svd}
+\bar{A}^{(i)} = \bar{U}^{(i)} \bar{S}^{(i)} \bar{V}^*^{(i)}
+\end{equation}という（行列の）特異値分解を行うことで行われる．なお，*をt-積とよばれるテンソル間の演算\cite{kilmer}とすると，$\mathcal{A} = \mathcal{U} * \mathcal{S} * \mathcal{V}^*$
+が成立する．
+
+
+\subsection{DFT以外の直交基底を用いたT-SVD}
+
+T-SVDの計算に用いられているDFTを，離散コサイン変換(DCT)等の異なる直交変換で置き換えることにより，T-SVDを用いたテンソル復元の性能を向上させる手法が提案されている．
+
+文献\cite{kohama}は，カラー画像データ（3階テンソル）を対象とし，第3次元方向に対する主成分分析(PCA)をDFTのかわりに用いることを提案したが，復元対象のテンソル（画像）によっては，DFTやDCTがPCAと比較してより高い性能を示すことがあり，テンソルごとに最適な直交変換が異なることも明らかとなっていた．
+
+
+
+
+\subsection{T-SVDによるテンソルデノイズ}
+いま,未知の真のテンソル$\mathcal{X} \in \mathbb{R}^{n_1 \times n_2 \times n_3}$に対して平均0，分散$\sigma^2$ の正規分布に従うノイズテンソル$\mathcal{W}$が付加された観測テンソル$\mathcal{Y}＝\mathcal{X}+\mathcal{W}$が得られているとする．
+T-SVDを用いたテンソルデノイズは観測テンソルから真のテンソル$\mathcal{X}$を推定手法の一種であり，$\mathcal{X}$の推定値$\^{\mathcal{X}}$の（直交変換後の）$i$番目のフロンタルスライスは，
+
+\begin{equation}
+    \label{eq:yx}
+    \hat{\bar{X}}^{(i)} = \mathrm{SVT}_\lambda (\bar{X}^{(i)})= \bar{U}^{(i)} T_\lambda(\bar{S}^{(i)}) (\bar{V}^{(i)})^*
+\end{equation}で得られる．ここで，しきい値処理$T_\lambda$は以下のように定義される．
+\begin{equation}
+    \label{eq:yx}
+    T_\lambda(S)(i,i) = \max (S(i,i) -\lambda,0)
+\end{equation}
+このような特異値に対するしきい値処理はSVT(singular value thresholding)とよばれる．
+
+
+
+
+\subsection{核ノルム最小化におけるSURE}
+SURE(Stein's unbiased risk estimator)は原画像を用いることなく，推定画像との平均二乗誤差を不偏推定することができる手法である．
+
+いま，原行列$X \in \mathbb{R}^{m \times n$にノイズ行列$W\in \mathbb{R}^{m \times n$が加算された観測行列$Y＝X＋W$から$X$を前述のSVT用いて推定するとものする．このようなSVTを用いた行列デノイズにおけるSUREはCandesらの検討によって以下のように明らかとなっている\cite{Candes}．
+
+本研究では，この行列デノイズのSUREを利用して，t-SVDを用いたテンソルデノイズのSUREを実現する.
+
+
+
+
+
+\section{提案手法}
+
+前と同様に，原テンソルを$\mathcal{X}$とし，観測テンソル$\mathcal{Y}$が
+からSVTによって復元テンソル$\hat{\mathcal{X}}$が得られているものとする．また，SVTを用いた行列デノイズにおけるSUREを$\mathrm{SURE}(\mathrm{SVT}_\lambda(Y))$とする．このとき，復元した$\hat{\mathcal{{X}}}$と原テンソルのあいだのSUREは，
+\begin{equation}
+\label{mysure}
+\sum^{n_3}_{i=1} \frac{\mathrm{SURE}(\mathrm{SVT}_\lambda (\bar{X}^{(i)}))}{n_3}
+\end{equation}により求められる．これは，直交変換の前後ではベクトル間の距離が保たれること（パーセバルの関係）ならびにフロンタルスライスがテンソルを互いに素な要素に分割していることによる．
+
+これまでの内容をふまえ，以下のように最適な直交変換を選択する手法を提案する．
+\vskip\baselineskip
+\vskip\baselineskip
+ステップ１：DFT，DCT，およびPCAの三種類の直交変換を用いて式(\ref{frontalslice_use_t-svd})のように特異値分解を行い，式(\ref{xhat})で紹介したSVTによって，観測テンソル$\mathcal{Y}$のデノイズを行う．
+\vskip\baselineskip
+
+ステップ２：ノイズ除去後の各テンソルに対し，式(\ref{mysure})を用いてSUREを計算する．パラメータ$\lambda$については，直交変換ごとにSUREが最小となる値（以下，最適$\lambda$)を選択するものとする．
+
+\vskip\baselineskip
+ステップ３：各直交変換において最適$\lambda$を用いたときのSUREを比較し，最も小さい値となったものを最適な直交変換とする．
+
+
+
+
+
+
+
+
+
+\section{実験}
+\subsection{実験概要}
+本実験では原テンソル$\mathcal{X}$として，
+サイズ256×256×3の標準カラー画像12枚を用いた．このようなカラー画像では，第3次元（RGBカラーチャンネル）の間に強い相関があることが知られている．また，
+ノイズテンソルとしては，各成分が独立同一の分散$\sigma=0.2$および$0.5$の正規分布に従うものを用い，これを原テンソルに付加したものを観測テンソルとする．
+比較手法としては，直交変換として常にDFT，DCTおよびPCAを用いる手法を選び，その性能を，SURE用いて最良の直交変換を選択する提案手法と比較する．復元性能の評価は原テンソルとノイズ除去後のテンソルとの間のPSNR（単位は[dB]）によって行う．
+
+\subsection{実験結果}
+実験により得られた結果のうちσ=0.2のときのものを表4.1に示す．この表から，提案手法を用いることにより，画像12枚のうち11枚において最良の直交変換が選ばれることが明らかとなった．また，提案手法が最良の直交変換を選べていない場合においても，2番目にPSNRが大きい直交変換との差は0.05以下とごく小さいことが明らかとなった．
+以上より，SUREを用いた直交変換の選択手法の有効性が明らかとなった．なお，$\sigma=0.5$においても同様の結果が得られた．
+
+
+\begin{table}[h]
+\caption{標準画像に対するテンソルデノイズの性能比較($\sigma=0.2$，単位はPSNR，赤字は一番目に高い値，青字は二番目に高い値)}
+\label{tab:settings}
+\centering
+\begin{tabular}{c||c|c|c||c}\hline
+- & DFT & DCT & PCA & SURE\\\hline
+Aerial & 21.20 & \textcolor{blue}{21.31} & \textcolor{red}{21.33} & \textcolor{red}{21.33}\\\hline
+Airplane & 21.81 & \textcolor{blue}{21.86} & \textcolor{red}{22.14}& \textcolor{red}{22.14}\\\hline
+Balloon & 24.11 & \textcolor{red}{24.19} & \textcolor{blue}{24.15} & \textcolor{blue}{24.15} \\\hline
+Earth & 22.51 & \textcolor{blue}{22.59} & \textcolor{red}{22.87} & \textcolor{red}{22.87}  \\\hline
+Girl & 23.09 & \textcolor{blue}{23.16} & \textcolor{red}{23.19} & \textcolor{red}{23.19}  \\\hline
+Lenna & 21.69 & \textcolor{blue}{21.73} & \textcolor{red}{21.96} & \textcolor{red}{21.96} \\\hline
+Mandrill &20.25 & \textcolor{red}{20.39} & \textcolor{blue}{20.34} & \textcolor{red}{20.39}  \\\hline
+Parrots & 21.83 & \textcolor{blue}{21.90} & \textcolor{red}{21.92}  & \textcolor{red}{21.92}  \\\hline
+Pepper & 20.70 & \textcolor{blue}{20.72} & \textcolor{red}{20.97} & \textcolor{red}{20.97}  \\\hline
+Sailboat & 21.50 & \textcolor{blue}{21.57} & \textcolor{red}{21.97} & \textcolor{red}{21.97}  \\\hline
+couple & 23.94 & \textcolor{blue}{24.05} & \textcolor{red}{24.11} & \textcolor{red}{24.11}  \\\hline
+milkdrop &23.14 & \textcolor{blue}{23.19} & \textcolor{red}{23.48} & \textcolor{red}{23.48} \\\hline
+
+
+\end{tabular}
+\end{table}
+
+
+
+\section{結論}
+本研究では，観測テンソルに応じたノイズ除去処理が行える手法を得ることを目的とし，SUREを用いることでt-SVDにおけるDFT,DCT,PCA
+の三つの直交変換の中から最もノイズ除去性能が高い直交変換を選択する手法を提案した．実験では，12枚のカラー画像にそれぞれ三つの直交変換を固定的に用いてテンソルノイズ除去を行う手法と提案手法とを比較した．その結果，提案手法はほぼすべての画像において最良の直交変換を選択できることが明らかとなり，そうでない場合においても，2番目にPSNR が大きい直交変換との差はごく小さいことがわかった．
+この結果から，テンソルノイズ除去において，SUREを用いて最良の直交変換を選択することが有効であることが明らかとなり，目的である観測テンソルに適したノイズ除去処理が行えることが確認された．
+
+{\small
+\addcontentsline{toc}{chapter}{参考文献}
+\bibliography{ref}
+\bibliographystyle{junsrt}
+}
+
+\end{document}

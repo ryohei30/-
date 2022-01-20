@@ -1,0 +1,23 @@
+\chapter{提案手法}
+\section{テンソルノイズ除去におけるSURE}
+ここでは2.4で紹介したSVTのSUREをテンソルに対して行う方法を説明する．
+2.3節と同様に，原テンソルを$\mathcal{X}$とするとし，観測テンソル$\mathcal{Y}$が
+$\mathcal{Y}=\mathcal{X}+\mathcal{W}$
+からSVTによって復元テンソルが得られているものとする．このとき，復元した$\hat{\mathcal{{X}}}$と原テンソルのあいだのSUREは，
+\begin{equation}
+\label{mysure}
+\sum^{n_3}_{i=1} \frac{\mathrm{SURE}(\mathrm{SVT}_\lambda (\bar{X}^{(i)}))}{n_3}
+\end{equation}である.これは，直交変換の前後ではベクトル間の距離が保たれること（パーセバルの関係）ならびにフロンタルスライスがテンソルを互いに素な要素に分割していることによる．
+
+\section{SUREを用いた最適な直交変換の選択法}
+
+これまでの内容を踏まえ，以下のように最適な直交変換を選択する手法を提案する．
+\vskip\baselineskip
+\vskip\baselineskip
+ステップ１：式(\ref{dft})で行うDFTをPCAやDCTに置き換え，それらの三種類の直交変換を用いて式(\ref{frontalslice_use_t-svd})のように特異値分解を行い，式(\ref{xhat})で紹介した最小化問題をそれぞれ解くことで，観測テンソル$\mathcal{Y}$のデノイズを行う．
+\vskip\baselineskip
+
+ステップ２：ノイズ除去後の各テンソルに対し，式(3.1)を用いてSUREを計算する．パラメータ$\lambda$については，直交変換ごとにSUREが最小となる値（以下，最適$\lambda$)を選択するものとする．
+
+\vskip\baselineskip
+ステップ３：各直交変換において最適$\lambda$を用いたときのSUREを比較し，最も小さい値となったものを最適な直交変換とする．

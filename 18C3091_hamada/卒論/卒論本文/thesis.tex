@@ -1,0 +1,120 @@
+\documentclass[a4paper,12pt,report]{jsbook}
+%\usepackage[top=30truemm,bottom=30truemm,left=25truemm,right=25truemm]{geometry}
+
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{url}
+\usepackage{bm}
+\usepackage{color}
+\newcommand{\argmax}{\mathop{\rm arg~max}\limits}
+\newcommand{\argmin}{\mathop{\rm arg~min}\limits}
+
+%ページに綴じ代をつくる
+\setlength{\textwidth}{38zw}
+\setlength{\oddsidemargin}{0.5cm}
+
+
+%共通設定
+\renewcommand{\bibname}{参考文献}
+\renewcommand{\theenumi}{\roman{enumi}}
+\usepackage{makeidx}
+\pagestyle{headings}
+\usepackage{graphicx}
+\pagenumbering{roman}
+
+%枠関連の設定
+\usepackage{fancybox}
+\usepackage{framed}
+\newenvironment{longbox}{%
+  \def\FrameCommand{\fboxsep=\FrameSep \fbox}%
+  \MakeFramed {\FrameRestore}}%
+ {\endMakeFramed}
+
+\makeindex
+
+\begin{document}
+
+
+%
+% 表紙
+%
+\begin{titlepage}
+\begin{center}
+{\large 令和04度卒業論文\\}
+\vspace{2.5cm}
+{\fontsize{36pt}{40pt}\selectfont%
+ T-SVDによる\\テンソルノイズ除去における直交変換の\\SUREによる最適化\\}
+\vspace{3cm}
+{\large%
+  千葉工業大学　先進工学部　\\
+  \vspace{3mm}18C03091　濱田　崚平\\
+  \vspace{2cm}指導教員　宮田　高道　教授\\
+  \vspace{5mm}提出日　令和4年1月17日\\
+}%各所にあるvspaceの値を調整して1ページに収まるようにしましょう．
+\end{center}
+\end{titlepage}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%和文要旨%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{titlepage}
+\begin{longbox}
+\begin{center}
+ {\Huge T-SVDによるテンソルノイズ除去における直交変換のSUREによる最適化}\\
+ {\large%
+   \vspace{3mm}%
+   18C3091 濱田　崚平\\
+ }
+\end{center}
+{\bf 概要：}%
+T-SVDを用いたテンソル復元は,テンソルに離散フーリエ変換を行なったのち，行列に分解してそれぞれの行列を低ランク行列で近似することでテンソルを復元する手法である．これに対して，従来用いられている離散フーリエ変換を，その他の直交変換（離散コサイン変換や主成分分析の変換行列など）で置き換えることが可能であることが知られており，それによって高精度なテンソル復元を行える手法も提案されている．その一方で，従来の研究により，復元対象のテンソルによって最適な直交変換が異なることも明らかとなっている．そこで本研究では，テンソル復元の一種であるテンソルノイズ除去を対象として，ノイズ除去後の最小二乗誤差を（復元対象の原テンソルを参照することなく）推定することを可能とするSUREを用いて対象のテンソルごとに候補中から最適な直交変換を選択する手法を提案する．これにより,従来手法と比較して，常に高い精度でテンソルノイズ除去が行うことが可能となった．
+\\
+\\
+\end{longbox}
+\end{titlepage}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\bibliographystyle{junsrt}
+%\maketitle
+\tableofcontents
+
+
+\newpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+%%%%%%%%%%%%%%%%%%%%%%%ここから本文を書きましょう%%%%%%%%%%%%%%%
+%各章毎にファイルを分割して\inputで読み込ませると管理が楽
+\include{chap01}
+\include{chap02}
+\include{chap03}
+\include{chap04}
+\include{chap05}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter*{謝辞}
+\addcontentsline{toc}{chapter}{謝辞}
+本研究を進めるにあたり,たくさんの助言やご指導をして下さいました宮田高道教授に深く感謝いたします，また，研究室の先輩方もたくさんの助言やご指導をしてくださり，感謝いたします．
+
+
+\nocite{*}
+\cleardoublepage
+\pagestyle{plain}
+
+\bibliography{ref}
+
+
+%図の一覧を出力する場合
+%\listoffigures
+
+%表の一覧を出力する場合
+%\listoftables
+
+\end{document}
